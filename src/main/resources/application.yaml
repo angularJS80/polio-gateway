@@ -1,3 +1,15 @@
+server:
+  port: 8000  # Gateway 서버 포트
+
 spring:
   application:
     name: polio-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: sample-hello
+          uri: http://localhost:8080
+          predicates:
+          - Path=/api/polio/**
+          filters:
+            - RewritePath=/api/polio/(?<remaining>.*), /$\{remaining}
