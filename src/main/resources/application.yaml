@@ -1,9 +1,21 @@
 server:
   port: 8000  # Gateway 서버 포트
+keycloak:
+  client-id: polio-toy-client
+  client-secret: I6uiQiYIegQVvvIsAgFUpexpgNjfR86H
+  realm: polio
+  username: polio-admin
+  password: polio-admin
+  server-url: http://localhost:8089
 
 spring:
   application:
     name: polio-gateway
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8089/realms/polio
   cloud:
     gateway:
       routes:
