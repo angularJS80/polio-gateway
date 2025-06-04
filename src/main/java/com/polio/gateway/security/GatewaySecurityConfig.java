@@ -1,5 +1,6 @@
-package com.polio.gateway.config.security;
-
+package com.polio.gateway.security;
+import com.polio.gateway.security.converter.KeycloakReactiveJwtAuthenticationConverter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -8,7 +9,10 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 
 @Configuration
 @EnableWebFluxSecurity
+@RequiredArgsConstructor
 public class GatewaySecurityConfig {
+
+    private final KeycloakReactiveJwtAuthenticationConverter converter;
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -18,7 +22,8 @@ public class GatewaySecurityConfig {
                 .pathMatchers("/api/polio/**").authenticated()  // 보호할 경로 설정
                 .anyExchange().permitAll()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt());
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(converter.buildConverter())));
+
 
         return http.build();
     }
