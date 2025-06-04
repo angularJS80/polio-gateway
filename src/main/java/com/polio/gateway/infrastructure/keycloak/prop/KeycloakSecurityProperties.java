@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 
 @Data
 @ConfigurationProperties(prefix = "keycloak")
+@EnableConfigurationProperties(KeycloakSecurityProperties.class)
 public class KeycloakSecurityProperties {
     private String serverUrl;
     private String realm;
