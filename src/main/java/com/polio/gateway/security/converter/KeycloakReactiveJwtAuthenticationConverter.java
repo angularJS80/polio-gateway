@@ -1,6 +1,7 @@
 package com.polio.gateway.security.converter;
 
 import com.polio.gateway.infrastructure.keycloak.prop.KeycloakSecurityProperties;
+import com.polio.gateway.security.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,24 +21,7 @@ public class KeycloakReactiveJwtAuthenticationConverter implements Converter<Jwt
 
     @Override
     public Flux<GrantedAuthority> convert(Jwt jwt) {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-
-        List<String> realmRoles = Optional.ofNullable(jwt.getClaimAsMap("realm_access"))
-                .map(realm -> (List<String>) realm.get("roles"))
-                .orElse(Collections.emptyList());
-        realmRoles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
-
-        Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
-        if (resourceAccess != null && resourceAccess.containsKey(keycloakSecurityProperties.getClientId())) {
-            Map<String, Object> clientRolesMap = (Map<String, Object>) resourceAccess.get(keycloakSecurityProperties.getClientId());
-            List<String> clientRoles = (List<String>) clientRolesMap.get("roles");
-            clientRoles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
-        }
-
-        List<String> scopes = Optional.ofNullable(jwt.getClaimAsStringList("scope")).orElse(Collections.emptyList());
-        scopes.forEach(scope -> authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope)));
-
-        return Flux.fromIterable(authorities);
+        return Flux.fromIterable(JwtUtil.convertAuthorities(jwt,keycloakSecurityProperties.getClientId()));
     }
 
     public ReactiveJwtAuthenticationConverter buildConverter() {

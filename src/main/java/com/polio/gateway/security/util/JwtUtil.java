@@ -1,27 +1,13 @@
-package com.polio.gateway.security.converter;
+package com.polio.gateway.security.util;
 
-import com.polio.gateway.infrastructure.keycloak.prop.KeycloakSecurityProperties;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-
-@Component
-
-public class KeycloakJwtAuthenticationConverter extends JwtAuthenticationConverter {
-
-    private final KeycloakSecurityProperties keycloakSecurityProperties;
-
-    public KeycloakJwtAuthenticationConverter(KeycloakSecurityProperties keycloakSecurityProperties) {
-        this.keycloakSecurityProperties = keycloakSecurityProperties;
-        setJwtGrantedAuthoritiesConverter(this::convertAuthorities);
-    }
-
-    private Collection<GrantedAuthority> convertAuthorities(Jwt jwt) {
+public class JwtUtil {
+    public static Collection<GrantedAuthority> convertAuthorities(Jwt jwt, String clientId) {
         List<GrantedAuthority> authorities = new ArrayList<>();
 
         // realm_access.roles
@@ -32,8 +18,8 @@ public class KeycloakJwtAuthenticationConverter extends JwtAuthenticationConvert
 
         // resource_access.{client}.roles
         Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
-        if (resourceAccess != null && resourceAccess.containsKey(keycloakSecurityProperties.getClientId())) {
-            Map<String, Object> clientRolesMap = (Map<String, Object>) resourceAccess.get(keycloakSecurityProperties.getClientId());
+        if (resourceAccess != null && resourceAccess.containsKey(clientId)) {
+            Map<String, Object> clientRolesMap = (Map<String, Object>) resourceAccess.get(clientId);
             List<String> clientRoles = (List<String>) clientRolesMap.get("roles");
             clientRoles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
         }
