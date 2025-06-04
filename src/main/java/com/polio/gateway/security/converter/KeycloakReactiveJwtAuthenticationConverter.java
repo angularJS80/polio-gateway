@@ -1,7 +1,7 @@
 package com.polio.gateway.security.converter;
 
-import com.polio.gateway.infrastructure.keycloak.prop.KeycloakSecurityProperties;
 import com.polio.gateway.security.util.JwtUtil;
+import com.polio.poliokeycloak.keycloak.client.prop.KeycloakSecurityProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;

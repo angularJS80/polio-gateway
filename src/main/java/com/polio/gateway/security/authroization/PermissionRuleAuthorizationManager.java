@@ -1,7 +1,7 @@
 package com.polio.gateway.security.authroization;
 
-import com.polio.gateway.application.keycloak.dto.RoleRule;
-import com.polio.gateway.infrastructure.keycloak.prop.dto.PermissionRule;
+import com.polio.poliokeycloak.keycloak.client.dto.PermissionRule;
+import com.polio.poliokeycloak.keycloak.dto.RoleRule;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

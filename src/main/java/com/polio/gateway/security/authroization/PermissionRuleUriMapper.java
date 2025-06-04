@@ -1,7 +1,7 @@
 package com.polio.gateway.security.authroization;
 
-import com.polio.gateway.application.keycloak.service.KeycloakPermissionService;
-import com.polio.gateway.infrastructure.keycloak.prop.dto.PermissionRule;
+import com.polio.poliokeycloak.keycloak.client.dto.PermissionRule;
+import com.polio.poliokeycloak.keycloak.service.KeycloakPermissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
