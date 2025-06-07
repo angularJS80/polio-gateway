@@ -26,7 +26,7 @@ public class PermissionRuleAuthorizationManager {
 
 
 
-    public AuthorizationDecision check(Supplier<Authentication> authentication, AuthorizationContext authorizationContext, String uri, PermissionRule permissionRule) {
+    public AuthorizationDecision check(Supplier<Authentication> authentication, AuthorizationContext authorizationContext, String uri) {
 
         // 접근한 메소드
         authorizationContext.getExchange().getRequest().getMethod();
