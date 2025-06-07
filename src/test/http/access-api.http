@@ -1,3 +1,11 @@
 ### Access token을 포함한 보호된 API 요청
 GET http://localhost:8000/api/polio/sample/hello
 Authorization: Bearer {{user_access_token}}
+
+###
+GET http://localhost:8000/api/polio2/sample/hello
+Authorization: Bearer {{user_access_token}}
+
+###
+GET http://localhost:8000/api/polio3/sample/hello
+Authorization: Bearer {{user_access_token}}
