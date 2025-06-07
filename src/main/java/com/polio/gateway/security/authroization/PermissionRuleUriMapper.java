@@ -17,26 +17,24 @@ import java.util.AbstractMap;
 public class PermissionRuleUriMapper {
 
     private final KeycloakPermissionService keycloakPermissionService;
-    private final PermissionRuleAuthorizationManager authorizationManager;
 
     public void configureAuthorization(ServerHttpSecurity.AuthorizeExchangeSpec authz) {
-        keycloakPermissionService.getResources()
-                        .stream()
-                        .flatMap(resource -> resource.getUris().stream())
-                                .forEach(uri->{
-                                    if(keycloakPermissionService.isNoPermission(uri)){
-                                        authz.pathMatchers(uri).permitAll();
-                                    }else{
-                                        authz.pathMatchers(uri)
-                                                .access((authentication, context) -> check(authentication,context,uri));
-                                    }
-                                });
-
+        keycloakPermissionService.getUris()
+                .forEach(uri->{
+                    if(keycloakPermissionService.isNoPermission(uri)){
+                        authz.pathMatchers(uri).permitAll();
+                    }else{
+                        authz.pathMatchers(uri)
+                                .access((authentication, context) -> check(authentication,context,uri));
+                    }
+                });
     }
 
     public Mono<AuthorizationDecision> check(Mono<Authentication> monoAuthentication, AuthorizationContext context, String uri) {
-        return monoAuthentication.map(authentication ->
-                authorizationManager.check(() -> authentication, context,uri)
+        return monoAuthentication.map(authentication ->{
+                boolean isValidUmaTicket =keycloakPermissionService.umaCheck(context, authentication, uri);
+                return  new AuthorizationDecision(isValidUmaTicket);
+            }
         );
     }
 }
