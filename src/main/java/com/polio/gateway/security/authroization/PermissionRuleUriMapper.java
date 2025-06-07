@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -19,22 +20,23 @@ public class PermissionRuleUriMapper {
     private final PermissionRuleAuthorizationManager authorizationManager;
 
     public void configureAuthorization(ServerHttpSecurity.AuthorizeExchangeSpec authz) {
-        keycloakPermissionService.getPermissionRules().stream()
-                .flatMap(permissionRule -> permissionRule.findResource().stream()
-                        .flatMap(resource -> resource.getUris().stream()
-                                .map(uri -> new AbstractMap.SimpleEntry<>(uri, permissionRule))))
-                .forEach(entry -> {
-                    String uri = entry.getKey();
-                    PermissionRule permissionRule = entry.getValue();
+        keycloakPermissionService.getResources()
+                        .stream()
+                        .flatMap(resource -> resource.getUris().stream())
+                                .forEach(uri->{
+                                    if(keycloakPermissionService.isNoPermission(uri)){
+                                        authz.pathMatchers(uri).permitAll();
+                                    }else{
+                                        authz.pathMatchers(uri)
+                                                .access((authentication, context) -> check(authentication,context,uri));
+                                    }
+                                });
 
-                    authz.pathMatchers(uri)
-                            .access((authentication, context) -> check(authentication, permissionRule));
-                });
     }
 
-    public Mono<AuthorizationDecision> check(Mono<Authentication> monoAuthentication, PermissionRule permissionRule) {
+    public Mono<AuthorizationDecision> check(Mono<Authentication> monoAuthentication, AuthorizationContext context, String uri) {
         return monoAuthentication.map(authentication ->
-                authorizationManager.check(() -> authentication, permissionRule)
+                authorizationManager.check(() -> authentication, context,uri)
         );
     }
 }
