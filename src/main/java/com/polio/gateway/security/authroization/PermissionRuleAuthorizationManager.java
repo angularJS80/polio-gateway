@@ -2,12 +2,17 @@ package com.polio.gateway.security.authroization;
 
 import com.polio.poliokeycloak.keycloak.client.dto.PermissionRule;
 import com.polio.poliokeycloak.keycloak.dto.RoleRule;
+import com.polio.poliokeycloak.keycloak.service.KeycloakPermissionService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -15,32 +20,27 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class PermissionRuleAuthorizationManager {
+    private final KeycloakPermissionService keycloakPermissionService;
 
-    public AuthorizationDecision check(Supplier<Authentication> authentication, PermissionRule permissionRule) {
-        List<RoleRule> roleRules = permissionRule.getRoleRules();
-        List<String> authorities = authentication.get().getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
 
-        boolean hasRequiredRole = roleRules.stream()
-                .anyMatch(roleRule -> authorities.contains("ROLE_" + roleRule.getName()));
 
-        Set<String> userScopes = authorities.stream()
-                .filter(auth -> auth.startsWith("SCOPE_"))
-                .map(auth -> auth.substring("SCOPE_".length()))
-                .collect(Collectors.toSet());
+    public AuthorizationDecision check(Supplier<Authentication> authentication, AuthorizationContext authorizationContext, String uri, PermissionRule permissionRule) {
 
-        boolean isValidScope = isValidScope(permissionRule, userScopes, authentication.get().getAuthorities());
+        // 접근한 메소드
+        authorizationContext.getExchange().getRequest().getMethod();
 
-        boolean allowed = hasRequiredRole && isValidScope;
-        return new AuthorizationDecision(allowed);
-    }
 
-    private boolean isValidScope(PermissionRule permissionRule, Set<String> userScopes, Collection<? extends GrantedAuthority> authorities) {
-        // 기존 isValidScope 로직을 여기서 구현하거나, 별도 클래스로 위임 가능
-        // ...
-        return true; // 임시
+        boolean isValidUmaTicket =false;
+        if (authentication.get() instanceof JwtAuthenticationToken jwtAuthenticationToken) {
+            String tokenValue = jwtAuthenticationToken.getToken().getTokenValue();
+             isValidUmaTicket = keycloakPermissionService.requestUmaTicket(tokenValue,
+                    uri,authorizationContext.getExchange().getRequest().getMethod());
+
+        }
+
+        return  new AuthorizationDecision(isValidUmaTicket);
     }
 
 
