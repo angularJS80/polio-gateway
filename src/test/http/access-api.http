@@ -2,6 +2,11 @@
 GET http://localhost:8000/api/polio/sample/hello
 Authorization: Bearer {{user_access_token}}
 
+
+###
+GET http://localhost:8080/sample/hello
+Authorization: Bearer {{user_access_token}}
+
 ###
 GET http://localhost:8000/api/polio2/sample/hello
 Authorization: Bearer {{user_access_token}}
