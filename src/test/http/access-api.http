@@ -4,13 +4,15 @@ Authorization: Bearer {{user_access_token}}
 
 
 ###
+# Protected 권한 제한이 있는 엔드포인트
 GET http://localhost:8080/sample/hello
 Authorization: Bearer {{user_access_token}}
 
 ###
+# Public 리소스는 등록되어있고, 권한제한은 없는 엔드인트
 GET http://localhost:8000/api/polio2/sample/hello
-Authorization: Bearer {{user_access_token}}
 
 ###
+# Default Protected 리소스 등록도 없고 , 권한제한이 기본적용되는 엔드포인트
 GET http://localhost:8000/api/polio3/sample/hello
 Authorization: Bearer {{user_access_token}}
